@@ -1,144 +1,125 @@
-<!Doctype: HTML w/ Processing>
-
 <html>
 
-  <head>
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-      <title>Processing Demo</title>
-      <script type="text/javascript" src="js/processing.js"></script>
-  </head>
-  
-  <body>
-    <h1>PUT YOUR TITLE HERE</h1>
-    <p>ADD DESCRIPTION HERE</p>
-    
-    <script type="text/processing">
-    
-      let img;
-      let hexCenters = []; // Центры групп шестиугольников
-      let imageLoaded = false;
-      let hexWidth = 80; // Ширина шестиугольника
-      let hexHeight = 60; // Высота шестиугольника
-      let trans = 80; // Прозрачность шестиугольника
-      
-      let hexLayer; // Слой для отрисовки шестиугольников
-      
-      function setup() {
-        createCanvas(1200, 800);
-      
-        // Инициализируем слой для шестиугольников
-        hexLayer = createGraphics(width, height);
-        hexLayer.clear();
-      }
-      
-      function draw() {
-        background(255);
-      
-        // Отображаем изображение, если оно загружено
-        if (imageLoaded) {
-          image(img, 0, 0);
-        }
-      
-        // Отображаем слой с шестиугольниками
-        image(hexLayer, 0, 0);
-      
-        // Рисуем кнопку для выбора изображения
-        drawButton();
-      }
-      
-      function drawButton() {
-        fill(200);
-        stroke(0);
-        rect(10, 10, 120, 30);
-        fill(0);
-        textSize(16);
-        textAlign(CENTER, CENTER);
-        text("Выбрать фото", 70, 25);
-      }
-      
-      function mousePressed() {
-        if (imageLoaded && mouseButton === LEFT && !isMouseOverButton()) {
-          hexCenters.push(createVector(mouseX, mouseY));
-          updateHexLayer();
-        } else if (mouseButton === RIGHT) {
-          for (let i = hexCenters.length - 1; i >= 0; i--) {
-            let center = hexCenters[i];
-            if (dist(mouseX, mouseY, center.x, center.y) < hexWidth / 2) {
-              hexCenters.splice(i, 1);
-              updateHexLayer();
-              break;
-            }
-          }
-        } else if (isMouseOverButton()) {
-          selectImage();
-        }
-      }
-      
-      function updateHexLayer() {
-        hexLayer.clear();
-        for (let center of hexCenters) {
-          drawHexagonGroup(hexLayer, center.x, center.y);
-        }
-      }
-      
-      function drawHexagonGroup(layer, x, y) {
-        layer.push();
-        layer.translate(x, y);
-      
-        drawHexagon(layer, 0, 0, hexWidth, hexHeight, trans);
-      
-        let horizontalOffset = hexWidth * 0.435;
-        let verticalOffset = hexHeight * 0.75;
-      
-        drawHexagon(layer, -horizontalOffset, -verticalOffset, hexWidth, hexHeight, trans);
-        drawHexagon(layer, horizontalOffset, -verticalOffset, hexWidth, hexHeight, trans);
-        drawHexagon(layer, -horizontalOffset, verticalOffset, hexWidth, hexHeight, trans);
-        drawHexagon(layer, horizontalOffset, verticalOffset, hexWidth, hexHeight, trans);
-        drawHexagon(layer, -horizontalOffset * 2, 0, hexWidth, hexHeight, trans);
-        drawHexagon(layer, horizontalOffset * 2, 0, hexWidth, hexHeight, trans);
-      
-        layer.pop();
-      }
-      
-      function drawHexagon(layer, x, y, width, height, alpha) {
-        layer.fill(255, 0, 0, alpha);
-        layer.noStroke();
-        layer.beginShape();
-        for (let i = 0; i < 6; i++) {
-          let angle = PI / 3 * i - PI / 6;
-          let px = x + cos(angle) * (width / 2);
-          let py = y + sin(angle) * (height / 2);
-          layer.vertex(px, py);
-        }
-        layer.endShape(CLOSE);
-      }
-      
-      // Функция для выбора изображения
-      function selectImage() {
-        const input = createFileInput(handleFile);
-        input.position(10, 10); // Позиция элемента выбора файла
-      }
-      
-      // Обработчик выбора изображения
-      function handleFile(file) {
-        if (file.type === 'image') {
-          img = createImg(file.data, ''); // Создаем изображение
-          img.hide(); // Скрываем оригинальное изображение
-          imageLoaded = true;
-          console.log("Изображение загружено: " + file.name);
-        } else {
-          console.log("Выбранный файл не является изображением.");
-        }
-      }
-      
-      // Проверка, находится ли курсор над кнопкой
-      function isMouseOverButton() {
-        return mouseX >= 10 && mouseX <= 130 && mouseY >= 10 && mouseY <= 40;
-      }
+<head>
+  <title>Wainmurk Web</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon.svg">
+  <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
 
-    </script>
-    <canvas id="sketch" style="border: 1px solid black;"></canvas>
-    
-  </body>
-  
+
+</head>
+
+<style>
+  .cont {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 400px;
+    width: auto;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.404);
+    border-radius: 10px;
+  }
+
+  h1 {
+    color: white;
+    font-size: 28px;
+  }
+
+  body {
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+    background-color: rgb(100, 100, 100);
+    margin: 0;
+  }
+
+  span {
+    cursor: pointer;
+    display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 5px;
+    background-color: rgb(0, 194, 0);
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  span:hover {
+    background-color: rgb(0, 155, 0);
+  }
+
+  a {
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    font-size: 23px;
+  }
+</style>
+
+<body style="background-color:rgb(100,100,100)">
+  <div class="cont">
+    <h1>Wainmurk.github.io</h1>
+    <span><a href="https://alexgyver.github.io/ota-projects/">CIV6 AntiAir Map</a></span>
+
+  </div>
+
+  <script>
+    let boxes = [];
+    let bsize = 60;
+    let amx, amy;
+    function setup() {
+      createCanvas(windowWidth, windowHeight, WEBGL);
+      stroke(0, 0, 0, 200);
+      strokeWeight(0.5);
+
+      rectMode(CENTER);
+      ortho(-width / 2, width / 2, -height / 2, height / 2, 10, 2000);
+      amx = Math.ceil(width / bsize + 1);
+      amy = Math.ceil(height / bsize + 1)
+      boxes = new Array(amx * amy).fill(400);
+      fill(110);
+    }
+
+    function draw() {
+      //orbitControl();
+      background(100);
+      directionalLight(255, 255, 255, -PI * 0.3, PI * 0.3, -PI * 0.6);
+      translate(0, -10, 250);
+      rotateX(-0.2);
+      rotateY(0.2);
+
+      for (let x = 0; x < width + bsize; x += bsize) {
+        for (let y = 0; y < height + bsize; y += bsize) {
+
+          let h = noise(frameCount * 0.01, x / width * 10, y / height * 10) * 10 * 25;
+          /*let xx = x/bsize;
+          let yy = y/bsize;
+          h = 400 + 200 * sin(sqrt(xx*xx+yy*yy)/1 + frameCount*0.03);*/
+
+          let offs = -35;
+          if (mouseX + offs >= x - bsize / 2 && mouseX + offs <= x + bsize / 2 &&
+            mouseY + offs >= y - bsize / 2 && mouseY + offs <= y + bsize / 2) {
+            h = 400;
+          }
+          let idx = Math.round(x / bsize + (width / bsize) * (y / bsize));
+          let k = boxes[idx] < h ? 0.4 : 0.02;
+          boxes[idx] += (h - boxes[idx]) * k;
+          push();
+          translate(-width / 2 + x, -height / 2 + y);
+          box(bsize, bsize, boxes[idx]);
+          pop();
+        }
+      }
+    }
+  </script>
+
+</body>
+
 </html>
